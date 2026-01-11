@@ -9,7 +9,10 @@ use tokio_tungstenite::{tungstenite::Message, MaybeTlsStream, WebSocketStream};
 pub type WsStream = WebSocketStream<MaybeTlsStream<TcpStream>>;
 
 fn field(v: &Value, key: &str) -> String {
-    v.get(key).and_then(|v| v.as_str()).unwrap_or("").to_string()
+    v.get(key)
+        .and_then(|v| v.as_str())
+        .unwrap_or("")
+        .to_string()
 }
 
 fn opt_field(v: &Value, key: &str) -> Option<String> {

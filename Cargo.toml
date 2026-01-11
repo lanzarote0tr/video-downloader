@@ -13,3 +13,4 @@ serde_json = "1"
 tokio = { version = "1", features = ["rt-multi-thread", "macros", "process", "net", "io-util", "fs", "sync", "time", "signal"] }
 tokio-tungstenite = "0.21"
 zip = { version = "0.6", default-features = false, features = ["deflate"] }
+base64 = "0.21"

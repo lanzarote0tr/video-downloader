@@ -48,8 +48,14 @@ pub async fn capture(port: u16, recorder: Recorder) -> Result<()> {
             )
             .await?;
         } else if let Some(id) = payload.get("id").and_then(|v| v.as_u64()) {
-            if let (Some(req_id), Some(result)) = (pending_bodies.remove(&id), payload.get("result")) {
-                let text = result.get("body").and_then(|b| b.as_str()).unwrap_or("").to_string();
+            if let (Some(req_id), Some(result)) =
+                (pending_bodies.remove(&id), payload.get("result"))
+            {
+                let text = result
+                    .get("body")
+                    .and_then(|b| b.as_str())
+                    .unwrap_or("")
+                    .to_string();
                 let base64 = result
                     .get("base64Encoded")
                     .and_then(|b| b.as_bool())

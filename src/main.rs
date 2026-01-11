@@ -3,6 +3,7 @@ mod config;
 mod devtools;
 mod devtools_handler;
 mod recorder;
+mod response_writer;
 
 use anyhow::Result;
 

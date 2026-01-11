@@ -83,10 +83,7 @@ async fn download_and_extract(platform: &Platform, dest: &Path) -> Result<()> {
 
     let zip_url = format!(
         "{}/{}/{}/{}",
-        SNAPSHOT_BASE,
-        platform.tag,
-        revision,
-        platform.zip
+        SNAPSHOT_BASE, platform.tag, revision, platform.zip
     );
     let zip_path = dest.join("chromium.zip");
     let mut resp = client
@@ -95,7 +92,9 @@ async fn download_and_extract(platform: &Platform, dest: &Path) -> Result<()> {
         .await
         .context("download chromium archive")?
         .error_for_status()?;
-    let mut file = fs::File::create(&zip_path).await.context("create archive file")?;
+    let mut file = fs::File::create(&zip_path)
+        .await
+        .context("create archive file")?;
     while let Some(chunk) = resp.chunk().await? {
         file.write_all(&chunk).await?;
     }
@@ -126,10 +125,7 @@ pub async fn launch_chromium(
         .context("create profile dir")?;
     let mut cmd = Command::new(exe);
     cmd.arg(format!("--remote-debugging-port={}", port))
-        .arg(format!(
-            "--user-data-dir={}",
-            profile_dir.to_string_lossy()
-        ))
+        .arg(format!("--user-data-dir={}", profile_dir.to_string_lossy()))
         .arg("--no-first-run")
         .arg("--no-default-browser-check")
         .arg("--disable-popup-blocking")

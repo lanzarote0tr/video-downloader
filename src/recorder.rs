@@ -1,3 +1,4 @@
+use crate::response_writer::ResponseWriter;
 use anyhow::Result;
 use serde::Serialize;
 use serde_json::Value;
@@ -39,6 +40,7 @@ pub struct BodyData {
 struct State {
     file: tokio::fs::File,
     entries: HashMap<String, Entry>,
+    writer: ResponseWriter,
 }
 
 #[derive(Clone)]
@@ -48,9 +50,7 @@ pub struct Recorder {
 
 impl Recorder {
     pub async fn new(path: &Path) -> Result<Self> {
-        if let Some(parent) = path.parent() {
-            tokio::fs::create_dir_all(parent).await?;
-        }
+        let writer = ResponseWriter::new(path.parent().unwrap_or(Path::new(""))).await?;
         let file = OpenOptions::new()
             .create(true)
             .append(true)
@@ -59,6 +59,7 @@ impl Recorder {
         let state = State {
             file,
             entries: HashMap::new(),
+            writer,
         };
         Ok(Self {
             inner: Arc::new(Mutex::new(state)),
@@ -128,6 +129,9 @@ impl Recorder {
     async fn flush_entry(&self, request_id: &str) -> Result<()> {
         let mut inner = self.inner.lock().await;
         if let Some(entry) = inner.entries.remove(request_id) {
+            if let Some(body) = &entry.body {
+                inner.writer.write(entry.request.as_ref(), body).await?;
+            }
             let line = serde_json::to_vec(&entry)?;
             inner.file.write_all(&line).await?;
             inner.file.write_all(b"\n").await?;
